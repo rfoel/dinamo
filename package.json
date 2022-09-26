@@ -1,0 +1,29 @@
+{
+  "name": "dinamo",
+  "version": "0.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "esbuild index.ts --outfile=dist/index.js --sourcemap --bundle --minify --platform=node",
+    "postbuild": "npm run types",
+    "types": "tsc --project tsconfig.build.json"
+  },
+  "keywords": [
+    "aws-sdk",
+    "dynamodb",
+    "node",
+    "node.js"
+  ],
+  "author": "Rafael Franco",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.179.0",
+    "@aws-sdk/lib-dynamodb": "^3.179.0",
+    "camelcase": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.23",
+    "esbuild": "^0.15.9",
+    "typescript": "^4.8.3"
+  }
+}
