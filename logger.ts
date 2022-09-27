@@ -1,7 +1,7 @@
 const log =
   (type: 'debug' | 'error' | 'info' | 'warn') =>
-  (...contents: any) =>
-    console[type](JSON.stringify(contents, null, 2))
+  (...contents: any[]) =>
+    contents && console[type](JSON.stringify(contents, null, 2))
 
 const logger = {
   debug: log('debug'),

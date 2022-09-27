@@ -17,52 +17,25 @@ import camelcase from 'camelcase'
 
 import logger from './logger'
 
-const options: DynamoDBClientConfig =
-  process.env.STAGE === 'prod'
-    ? {
-        logger,
-      }
-    : {
-        region: 'local',
-        endpoint: 'http://localhost:8000',
-        logger,
-      }
-
-const client = new DynamoDBClient(options)
-
-const dynamoDB = DynamoDBDocumentClient.from(client, {
-  marshallOptions: { removeUndefinedValues: true },
-})
-
-export type Entity = {
-  source: string
-  target: string
-  id: string
-  createdAt: number
-  updatedAt: number
-}
-
 export type Optional<Type, Key extends keyof Type> = Omit<Type, Key> &
   Partial<Pick<Type, Key>>
 
-type Put = {
-  item: Record<string, any>
-}
+type Put = Record<string, any>
 
 type Update = {
   item: Record<string, any>
   key: Record<string, any>
 }
 
-type Query = {
-  indexName?: string
+type Query<Type> = {
   key: Record<string, any>
+  indexName?: string
   query?: Record<string, any>
   limit?: number
   scanIndexForward?: boolean
   exclusiveStartKey?: Record<string, AttributeValue>
   recursive?: boolean
-  items?: unknown[]
+  items?: Type[]
   filterDeleted?: boolean
 }
 
@@ -74,16 +47,17 @@ type BatchGet = {
   keys: Record<string, string>[]
 }
 
-type Scan = {
+type Scan<Type> = {
   exclusiveStartKey?: Record<string, AttributeValue>
   query?: Record<string, any>
   recursive?: boolean
-  items?: unknown[]
+  items?: Type[]
   filterDeleted?: boolean
 }
 
 type Delete = {
   key: Record<string, any>
+  soft?: boolean
 }
 
 const buildExpressionAttributeNames = (
@@ -180,51 +154,50 @@ export const buildFilterExpression = (
         .join(' AND ')}`
     : undefined
 
-const makeResult = <Type>(result: Entity) => {
-  if (result && result.source === result.target)
-    result.id = getIdFromKey(result.source)
-  return result as Entity & Type
-}
-
-const makeResults = <Type>(result: Entity[]) =>
-  result.map(item => {
-    if (item?.source === item?.target) {
-      item.id = getIdFromKey(item.source)
-    }
-    return item
-  }) as (Entity & Type)[]
-
-const getIdFromKey = (source: Entity['source']) => {
-  const [, ...ids] = source.split(/#/)
-  return ids.join('#')
-}
-
 type DinamoConfig = {
+  endpoint?: string
   tableName: string
 }
 
-export default (config: DinamoConfig) => {
-  const { tableName } = config
+export default class Dinamo {
+  tableName: string
+  dynamoDB: DynamoDBDocumentClient
 
-  const put = ({ item }: Put) => {
-    item.createdAt = +new Date()
-    return dynamoDB.send(new PutCommand({ TableName: tableName, Item: item }))
+  constructor(config: DinamoConfig) {
+    this.tableName = config.tableName
+
+    const client = new DynamoDBClient({
+      endpoint: config.endpoint,
+      logger,
+    })
+
+    this.dynamoDB = DynamoDBDocumentClient.from(client, {
+      marshallOptions: { removeUndefinedValues: true },
+    })
   }
 
-  const update = ({ key, item }: Update) => {
+  async put(item: Put) {
+    item.createdAt = +new Date()
+    return this.dynamoDB.send(
+      new PutCommand({ TableName: this.tableName, Item: item }),
+    )
+  }
+
+  async update<Type>({ key, item }: Update) {
     item.updatedAt = +new Date()
-    return dynamoDB.send(
+    await this.dynamoDB.send(
       new UpdateCommand({
-        TableName: tableName,
+        TableName: this.tableName,
         Key: key,
         UpdateExpression: buildUpdateExpression(item),
         ExpressionAttributeNames: buildExpressionAttributeNames(item),
         ExpressionAttributeValues: buildExpressionAttributeValues(item),
       }),
     )
+    return this.get<Type>({ key })
   }
 
-  const query = async <Type>({
+  async query<Type>({
     indexName,
     key,
     limit,
@@ -233,11 +206,11 @@ export default (config: DinamoConfig) => {
     exclusiveStartKey,
     items = [],
     recursive,
-    filterDeleted = true,
-  }: Query): Promise<{
-    data: (Entity & Type)[]
+    filterDeleted = false,
+  }: Query<Type>): Promise<{
+    data: Type[]
     lastEvaluatedKey?: Record<string, string>
-  }> => {
+  }> {
     const expressionAttributeNames = buildExpressionAttributeNames({
       ...key,
       ...input,
@@ -257,23 +230,24 @@ export default (config: DinamoConfig) => {
         ? `${filterExpression} AND attribute_not_exists(#deletedAt)`
         : 'attribute_not_exists(#deletedAt)'
     }
-    const { Items, LastEvaluatedKey } = await dynamoDB.send(
+    const { Items, LastEvaluatedKey } = await this.dynamoDB.send(
       new QueryCommand({
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
         KeyConditionExpression: keyConditionExpression,
         FilterExpression: filterExpression,
         ScanIndexForward: scanIndexForward,
-        TableName: tableName,
+        TableName: this.tableName,
         IndexName: indexName,
         Limit: limit,
         ExclusiveStartKey: exclusiveStartKey,
       }),
     )
 
+    if (Items?.length) items.push(...(Items as Type[]))
+
     if (recursive && LastEvaluatedKey) {
-      items.push(...items)
-      return query<Type>({
+      return this.query<Type>({
         exclusiveStartKey: LastEvaluatedKey,
         key,
         items,
@@ -285,40 +259,40 @@ export default (config: DinamoConfig) => {
     }
 
     return {
-      data: makeResults<Type>(Items as unknown as Entity[]),
+      data: items,
       lastEvaluatedKey: LastEvaluatedKey,
     }
   }
 
-  const get = async <Type>({ key }: Get) => {
-    const { Item } = await dynamoDB.send(
-      new GetCommand({ TableName: tableName, Key: key }),
+  async get<Type>({ key }: Get) {
+    const { Item } = await this.dynamoDB.send(
+      new GetCommand({ TableName: this.tableName, Key: key }),
     )
-
-    return makeResult<Type>(Item as unknown as Entity)
+    return Item as Type
   }
 
-  const batchGet = async <Type>({ keys }: BatchGet) => {
-    const { Responses } = await dynamoDB.send(
+  async batchGet<Type>({ keys }: BatchGet) {
+    const { Responses } = await this.dynamoDB.send(
       new BatchGetCommand({
-        RequestItems: { [tableName]: { Keys: keys } },
+        RequestItems: { [this.tableName]: { Keys: keys } },
       }),
     )
 
     if (!Responses) return []
 
-    return makeResults<Type>(
-      Object.values(Responses).flat() as unknown as Entity[],
-    )
+    return Object.values(Responses).flat() as Type[]
   }
 
-  const scan = async <Type>({
+  async scan<Type>({
     exclusiveStartKey,
     items = [],
     query,
     recursive,
     filterDeleted = true,
-  }: Scan): Promise<(Entity & Type)[]> => {
+  }: Scan<Type>): Promise<{
+    data: Type[]
+    lastEvaluatedKey?: Record<string, string>
+  }> {
     const expressionAttributeNames = buildExpressionAttributeNames(query)
     const expressionAttributeValues = buildExpressionAttributeValues(query)
     let filterExpression = buildFilterExpression(query)
@@ -330,19 +304,20 @@ export default (config: DinamoConfig) => {
         : 'attribute_not_exists(#deletedAt)'
     }
 
-    const { Items, LastEvaluatedKey } = await dynamoDB.send(
+    const { Items, LastEvaluatedKey } = await this.dynamoDB.send(
       new ScanCommand({
         ExpressionAttributeNames: expressionAttributeNames,
         ExpressionAttributeValues: expressionAttributeValues,
         FilterExpression: filterExpression,
-        TableName: tableName,
+        TableName: this.tableName,
         ExclusiveStartKey: exclusiveStartKey,
       }),
     )
 
+    if (Items?.length) items.push(...(Items as Type[]))
+
     if (recursive && LastEvaluatedKey) {
-      items.push(...items)
-      return scan<Type>({
+      return this.scan<Type>({
         exclusiveStartKey: LastEvaluatedKey,
         items,
         query,
@@ -350,20 +325,16 @@ export default (config: DinamoConfig) => {
       })
     }
 
-    return makeResults<Type>(Items as unknown as Entity[]) as (Entity & Type)[]
+    return { data: items, lastEvaluatedKey: LastEvaluatedKey }
   }
 
-  const deleteItem = async ({ key }: Delete) => {
-    return dynamoDB.send(new DeleteCommand({ TableName: tableName, Key: key }))
-  }
-
-  return {
-    batchGet,
-    delete: deleteItem,
-    get,
-    put,
-    query,
-    scan,
-    update,
+  async delete<Type>({ key, soft = true }: Delete) {
+    const deletedAt = +new Date()
+    if (soft) {
+      return this.update<Type>({ key, item: { deletedAt } })
+    }
+    return this.dynamoDB.send(
+      new DeleteCommand({ TableName: this.tableName, Key: key }),
+    )
   }
 }
