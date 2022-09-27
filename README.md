@@ -22,6 +22,119 @@ import Dinamo from 'dinamo'
 const dinamo = new Dinamo({ tableName: 'my-table' })
 ```
 
+If you are using DynamoDB in a Docker container you can pass the endpoint as a parameter:
+
+```js
+const dinamo = new Dinamo({
+  endpoint: 'http://localhost:8000',
+  tableName: 'my-table',
+})
+```
+
 And you're ready to go!
 
 ## Usage
+
+### `batchGet`
+
+Gets items in batch.
+
+```js
+await dinamo.batchGet({ keys: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] })
+```
+
+### `delete`
+
+Soft deletes an item, i.e., adds a flag `deletedAt` with the timestamp of deletion. This is true by default and `query` and `scan` will filter out the deleted items by default too.
+
+```js
+await dinamo.delete({ key: { id: 'a' }, soft: true })
+```
+
+Deletes an item from the database.
+
+```js
+await dinamo.delete({ key: { id: 'a' }, soft: false })
+```
+
+### `get`
+
+Gets a single item.
+
+```js
+await dinamo.get({ key: { id: 'a' } })
+```
+
+### `put`
+
+Puts an item.
+
+```js
+await dinamo.put({ item: { id: 'a', foo: 'bar' } })
+```
+
+### `query`
+
+Queries items from the database.
+
+```js
+await dinamo.query({ key: { id: 'a' } })
+```
+
+With `indexName`.
+
+```js
+await dinamo.query({ key: { id: 'a' }, indexName: 'dateIdIndex' })
+```
+
+Filtering items.
+
+```js
+await dinamo.query({ key: { id: 'a' }, query: { foo: 'bar' } })
+```
+
+Disable filtering soft deletes.
+
+```js
+await dinamo.query({ key: { id: 'a' }, filterDeleted: false })
+```
+
+Limiting items.
+
+```js
+await dinamo.query({ key: { id: 'a' }, limit: 10 })
+```
+
+Reverse ordering items based on range key.
+
+```js
+await dinamo.query({ key: { id: 'a' }, scanIndexForward: true })
+```
+
+### `scan`
+
+Scans items from the database.
+
+```js
+await dinamo.scan({ query: { id: 'a' } })
+```
+
+Recursively scan items.
+
+```js
+await dinamo.scan({ query: { id: 'a' }, recursive: true })
+```
+
+Disable filtering soft deletes
+
+```js
+await dinamo.scan({ query: { id: 'a' }, filterDeleted: false })
+```
+
+### `update`
+
+Updates an item.
+
+```js
+await dinamo.update({ key: { id: 'a' }, item: { foo: 'baz' } })
+```

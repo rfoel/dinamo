@@ -17,10 +17,7 @@ import camelcase from 'camelcase'
 
 import logger from './logger'
 
-export type Optional<Type, Key extends keyof Type> = Omit<Type, Key> &
-  Partial<Pick<Type, Key>>
-
-type Put = Record<string, any>
+type Put = { item: Record<string, any> }
 
 type Update = {
   item: Record<string, any>
@@ -176,25 +173,40 @@ export default class Dinamo {
     })
   }
 
-  async put(item: Put) {
+  async batchGet<Type>({ keys }: BatchGet) {
+    const { Responses } = await this.dynamoDB.send(
+      new BatchGetCommand({
+        RequestItems: { [this.tableName]: { Keys: keys } },
+      }),
+    )
+
+    if (!Responses) return []
+
+    return Object.values(Responses).flat() as Type[]
+  }
+
+  async delete<Type>({ key, soft = true }: Delete) {
+    const deletedAt = +new Date()
+    if (soft) {
+      return this.update<Type>({ key, item: { deletedAt } })
+    }
+    return this.dynamoDB.send(
+      new DeleteCommand({ TableName: this.tableName, Key: key }),
+    )
+  }
+
+  async get<Type>({ key }: Get) {
+    const { Item } = await this.dynamoDB.send(
+      new GetCommand({ TableName: this.tableName, Key: key }),
+    )
+    return Item as Type
+  }
+
+  async put({ item }: Put) {
     item.createdAt = +new Date()
     return this.dynamoDB.send(
       new PutCommand({ TableName: this.tableName, Item: item }),
     )
-  }
-
-  async update<Type>({ key, item }: Update) {
-    item.updatedAt = +new Date()
-    await this.dynamoDB.send(
-      new UpdateCommand({
-        TableName: this.tableName,
-        Key: key,
-        UpdateExpression: buildUpdateExpression(item),
-        ExpressionAttributeNames: buildExpressionAttributeNames(item),
-        ExpressionAttributeValues: buildExpressionAttributeValues(item),
-      }),
-    )
-    return this.get<Type>({ key })
   }
 
   async query<Type>({
@@ -206,7 +218,7 @@ export default class Dinamo {
     exclusiveStartKey,
     items = [],
     recursive,
-    filterDeleted = false,
+    filterDeleted = true,
   }: Query<Type>): Promise<{
     data: Type[]
     lastEvaluatedKey?: Record<string, string>
@@ -264,25 +276,6 @@ export default class Dinamo {
     }
   }
 
-  async get<Type>({ key }: Get) {
-    const { Item } = await this.dynamoDB.send(
-      new GetCommand({ TableName: this.tableName, Key: key }),
-    )
-    return Item as Type
-  }
-
-  async batchGet<Type>({ keys }: BatchGet) {
-    const { Responses } = await this.dynamoDB.send(
-      new BatchGetCommand({
-        RequestItems: { [this.tableName]: { Keys: keys } },
-      }),
-    )
-
-    if (!Responses) return []
-
-    return Object.values(Responses).flat() as Type[]
-  }
-
   async scan<Type>({
     exclusiveStartKey,
     items = [],
@@ -328,13 +321,17 @@ export default class Dinamo {
     return { data: items, lastEvaluatedKey: LastEvaluatedKey }
   }
 
-  async delete<Type>({ key, soft = true }: Delete) {
-    const deletedAt = +new Date()
-    if (soft) {
-      return this.update<Type>({ key, item: { deletedAt } })
-    }
-    return this.dynamoDB.send(
-      new DeleteCommand({ TableName: this.tableName, Key: key }),
+  async update<Type>({ key, item }: Update) {
+    item.updatedAt = +new Date()
+    await this.dynamoDB.send(
+      new UpdateCommand({
+        TableName: this.tableName,
+        Key: key,
+        UpdateExpression: buildUpdateExpression(item),
+        ExpressionAttributeNames: buildExpressionAttributeNames(item),
+        ExpressionAttributeValues: buildExpressionAttributeValues(item),
+      }),
     )
+    return this.get<Type>({ key })
   }
 }
