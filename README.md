@@ -65,6 +65,14 @@ Gets a single item.
 await dinamo.get({ key: { id: 'a' } })
 ```
 
+### `increment`
+
+Increments an item. Step is optional.
+
+```js
+await dinamo.increment({ key: { id: 'a' }, field: 'count', step: 1 })
+```
+
 ### `put`
 
 Puts an item.

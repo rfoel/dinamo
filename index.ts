@@ -15,13 +15,17 @@ import {
 } from '@aws-sdk/lib-dynamodb'
 import camelcase from 'camelcase'
 
-import logger from './logger'
-
 type Put = { item: Record<string, any> }
 
 type Update = {
   item: Record<string, any>
   key: Record<string, any>
+}
+
+type Increment = {
+  field: string
+  key: Record<string, any>
+  step?: number
 }
 
 type Query<Type> = {
@@ -58,12 +62,7 @@ type Delete = {
 }
 
 const buildExpressionAttributeNames = (
-  input?: Record<
-    string,
-    | string
-    | number
-    | Record<string, string | number | { between: [number, number] }>
-  >,
+  input?: Record<string, string | number | Record<string, string | number>>,
 ): Record<string, string> | undefined => {
   if (!input) return undefined
   return Object.keys(input).reduce(
@@ -76,15 +75,17 @@ const buildExpressionAttributeNames = (
 }
 
 const buildUpdateExpression = (
-  input: Record<
-    string,
-    | string
-    | number
-    | Record<string, string | number | { between: [number, number] }>
-  >,
+  input: Record<string, string | number | Record<string, string | number>>,
 ): string => {
-  return `set ${Object.keys(input)
-    .map(key => `#${camelcase(key)} = :${camelcase(key)}`)
+  return `set ${Object.entries(input)
+    .map(
+      ([key, value]) =>
+        `#${camelcase(key)} = ${
+          typeof value === 'object' && Object.keys(value)[0] === 'increment'
+            ? `#${camelcase(key)} +`
+            : ''
+        } :${camelcase(key)}`,
+    )
     .join(', ')}`
 }
 
@@ -93,15 +94,21 @@ const buildExpressionAttributeValues = (
     string,
     | string
     | number
-    | Record<string, string | number | { between: [number, number] }>
+    | Record<
+        string,
+        string | number | { between: [number, number] } | { increment: number }
+      >
   >,
 ): Record<string, any> | undefined => {
   if (!input) return undefined
 
+  console.log({ input })
   return Object.entries(input).reduce((acc, [key, value]) => {
     if (
       typeof value === 'object' &&
-      ['beginsWith', 'or', 'lt', 'lte', 'gte'].includes(Object.keys(value)[0])
+      ['beginsWith', 'or', 'lt', 'lte', 'gte', 'increment'].includes(
+        Object.keys(value)[0],
+      )
     ) {
       return {
         ...acc,
@@ -165,7 +172,7 @@ export default class Dinamo {
 
     const client = new DynamoDBClient({
       endpoint: config.endpoint,
-      logger,
+      logger: console,
     })
 
     this.dynamoDB = DynamoDBDocumentClient.from(client, {
@@ -200,6 +207,10 @@ export default class Dinamo {
       new GetCommand({ TableName: this.tableName, Key: key }),
     )
     return Item as Type
+  }
+
+  async increment<Type>({ key, field, step = 1 }: Increment) {
+    return this.update<Type>({ key, item: { [field]: { increment: step } } })
   }
 
   async put({ item }: Put) {

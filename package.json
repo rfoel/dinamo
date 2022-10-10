@@ -1,6 +1,6 @@
 {
   "name": "dinamo",
-  "version": "0.0.1-alpha.12",
+  "version": "0.0.1-alpha.14",
   "description": "Amazon DynamoDB utilities for Node.js",
   "author": "Rafael Franco",
   "license": "MIT",
@@ -19,14 +19,14 @@
     "node.js"
   ],
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.179.0",
-    "@aws-sdk/lib-dynamodb": "^3.179.0",
+    "@aws-sdk/client-dynamodb": "^3.186.0",
+    "@aws-sdk/lib-dynamodb": "^3.186.0",
     "camelcase": "^7.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.7.23",
-    "esbuild": "^0.15.9",
+    "@types/node": "^18.8.3",
+    "esbuild": "^0.15.10",
     "rimraf": "^3.0.2",
-    "typescript": "^4.8.3"
+    "typescript": "^4.8.4"
   }
 }
