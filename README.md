@@ -43,6 +43,14 @@ Gets items in batch.
 await dinamo.batchGet({ keys: [{ id: 'a' }, { id: 'b' }, { id: 'c' }] })
 ```
 
+### `decrement`
+
+Decrements an item. Step is optional.
+
+```js
+await dinamo.decrement({ key: { id: 'a' }, field: 'count', step: 1 })
+```
+
 ### `delete`
 
 Soft deletes an item, i.e., adds a flag `deletedAt` with the timestamp of deletion. This is true by default and `query` and `scan` will filter out the deleted items by default too.

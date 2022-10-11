@@ -192,6 +192,10 @@ export default class Dinamo {
     return Object.values(Responses).flat() as Type[]
   }
 
+  async decrement<Type>({ key, field, step = 1 }: Increment) {
+    return this.increment<Type>({ key, field, step: -Math.abs(step) })
+  }
+
   async delete<Type>({ key, soft = true }: Delete) {
     const deletedAt = +new Date()
     if (soft) {
