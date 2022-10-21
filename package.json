@@ -24,7 +24,9 @@
     "build": "esbuild index.ts --outfile=dist/index.js --bundle --minify --platform=node",
     "prebuild": "rimraf dist",
     "postbuild": "npm run types",
-    "types": "tsc --project tsconfig.build.json"
+    "types": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint ."
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.186.0",
@@ -33,7 +35,9 @@
   },
   "devDependencies": {
     "@types/node": "^18.8.3",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
     "esbuild": "^0.15.10",
+    "eslint": "^8.25.0",
     "rimraf": "^3.0.2",
     "typescript": "^4.8.4"
   }
