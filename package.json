@@ -24,17 +24,28 @@
     "build": "esbuild index.ts --outfile=dist/index.js --bundle --minify --platform=node",
     "prebuild": "rimraf dist",
     "postbuild": "npm run types",
-    "types": "tsc --project tsconfig.build.json"
+    "types": "tsc --project tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint ."
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.186.0",
-    "@aws-sdk/lib-dynamodb": "^3.186.0",
+    "@aws-sdk/client-dynamodb": "^3.193.0",
+    "@aws-sdk/lib-dynamodb": "^3.193.0",
     "camelcase": "^7.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.8.3",
-    "esbuild": "^0.15.10",
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^8.0.6",
+    "@semantic-release/npm": "^9.0.1",
+    "@semantic-release/release-notes-generator": "^10.0.3",
+    "@types/node": "^18.11.3",
+    "@typescript-eslint/eslint-plugin": "^5.40.1",
+    "esbuild": "^0.15.12",
+    "eslint": "^8.25.0",
     "rimraf": "^3.0.2",
+    "semantic-release": "^19.0.5",
     "typescript": "^4.8.4"
   }
 }
