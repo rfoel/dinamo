@@ -1,7 +1,4 @@
-import type {
-  AttributeValue,
-  DynamoDBClientConfig,
-} from '@aws-sdk/client-dynamodb'
+import type { AttributeValue } from '@aws-sdk/client-dynamodb'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import {
   DynamoDBDocumentClient,
@@ -102,7 +99,6 @@ const buildExpressionAttributeValues = (
 ): Record<string, any> | undefined => {
   if (!input) return undefined
 
-  console.log({ input })
   return Object.entries(input).reduce((acc, [key, value]) => {
     if (
       typeof value === 'object' &&
@@ -150,7 +146,7 @@ export const buildFilterExpression = (
             if (keys[0] === 'or')
               return `#${key} = :${key}0 OR #${key} = :${key}1`
             return keys
-              .map(k => `#${key}.#${k} = :${camelcase(`${key}.${k}`)}`)
+              .map((k) => `#${key}.#${k} = :${camelcase(`${key}.${k}`)}`)
               .join(' AND ')
           }
           return `#${key} = :${key}`
