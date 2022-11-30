@@ -1,3 +1,15 @@
+# [2.0.0](https://github.com/rfoel/dinamo/compare/v1.0.2...v2.0.0) (2022-11-30)
+
+
+### Features
+
+* build only esm ([ef5d9f8](https://github.com/rfoel/dinamo/commit/ef5d9f80b50a4090cf376157360afcc741b2ffd9))
+
+
+### BREAKING CHANGES
+
+* package is ESM only now, and the DynamoDB SDK are now peer deps
+
 ## [1.0.2](https://github.com/rfoel/dinamo/compare/v1.0.1...v1.0.2) (2022-11-30)
 
 

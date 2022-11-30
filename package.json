@@ -1,6 +1,6 @@
 {
   "name": "dinamo",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Amazon DynamoDB utilities for Node.js",
   "author": "Rafael Franco",
   "license": "MIT",
