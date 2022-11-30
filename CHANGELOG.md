@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/rfoel/dinamo/compare/v1.0.0...v1.0.1) (2022-11-30)
+
+
+### Bug Fixes
+
+* build esm and cjs ([12f23e0](https://github.com/rfoel/dinamo/commit/12f23e0ec6c86b105ec5326ce10a64c58e603dd1))
+
 # 1.0.0 (2022-10-21)
 
 
