@@ -21,6 +21,9 @@
     "url": "https://github.com/rfoel/dinamo/issues"
   },
   "homepage": "https://github.com/rfoel/dinamo#readme",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build:cjs": "esbuild index.ts --bundle --sourcemap --minify --outfile=dist/index.cjs.js",
     "build:esm": "esbuild index.ts --bundle --sourcemap --minify --format=esm --outfile=dist/index.esm.js",
