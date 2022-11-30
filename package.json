@@ -4,7 +4,8 @@
   "description": "Amazon DynamoDB utilities for Node.js",
   "author": "Rafael Franco",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "keywords": [
     "aws-sdk",
@@ -21,7 +22,9 @@
   },
   "homepage": "https://github.com/rfoel/dinamo#readme",
   "scripts": {
-    "build": "esbuild index.ts --outfile=dist/index.js --bundle --minify --platform=node",
+    "build:cjs": "esbuild index.ts --bundle --sourcemap --minify --outfile=dist/index.cjs.js",
+    "build:esm": "esbuild index.ts --bundle --sourcemap --minify --format=esm --outfile=dist/index.esm.js",
+    "build": "npm run build:cjs && npm run build:esm",
     "prebuild": "rimraf dist",
     "postbuild": "npm run types",
     "types": "tsc --project tsconfig.build.json",
@@ -29,23 +32,23 @@
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint ."
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.193.0",
-    "@aws-sdk/lib-dynamodb": "^3.193.0",
+    "@aws-sdk/client-dynamodb": "^3.218.0",
+    "@aws-sdk/lib-dynamodb": "^3.218.0",
     "camelcase": "^7.0.0"
   },
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/changelog": "^6.0.2",
     "@semantic-release/commit-analyzer": "^9.0.2",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^8.0.6",
+    "@semantic-release/github": "^8.0.7",
     "@semantic-release/npm": "^9.0.1",
     "@semantic-release/release-notes-generator": "^10.0.3",
-    "@types/node": "^18.11.3",
-    "@typescript-eslint/eslint-plugin": "^5.40.1",
-    "esbuild": "^0.15.12",
-    "eslint": "^8.25.0",
+    "@types/node": "^18.11.9",
+    "@typescript-eslint/eslint-plugin": "^5.45.0",
+    "esbuild": "^0.15.16",
+    "eslint": "^8.28.0",
     "rimraf": "^3.0.2",
     "semantic-release": "^19.0.5",
-    "typescript": "^4.8.4"
+    "typescript": "^4.9.3"
   }
 }
