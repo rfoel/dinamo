@@ -10,6 +10,7 @@ import {
   ScanCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb'
+import { Logger } from '@aws-sdk/types'
 import camelcase from 'camelcase'
 
 type Put = { item: Record<string, any> }
@@ -146,7 +147,7 @@ export const buildFilterExpression = (
             if (keys[0] === 'or')
               return `#${key} = :${key}0 OR #${key} = :${key}1`
             return keys
-              .map((k) => `#${key}.#${k} = :${camelcase(`${key}.${k}`)}`)
+              .map(k => `#${key}.#${k} = :${camelcase(`${key}.${k}`)}`)
               .join(' AND ')
           }
           return `#${key} = :${key}`
@@ -154,24 +155,28 @@ export const buildFilterExpression = (
         .join(' AND ')}`
     : undefined
 
-type DinamoConfig = {
+export type DinamoConfig = {
   endpoint?: string
+  logger?: Logger
+  region?: string
   tableName: string
 }
 
 export default class Dinamo {
-  tableName: string
+  client: DynamoDBClient
   dynamoDB: DynamoDBDocumentClient
+  tableName: string
 
   constructor(config: DinamoConfig) {
     this.tableName = config.tableName
 
-    const client = new DynamoDBClient({
+    this.client = new DynamoDBClient({
       endpoint: config.endpoint,
-      logger: console,
+      logger: config.logger,
+      region: config.region,
     })
 
-    this.dynamoDB = DynamoDBDocumentClient.from(client, {
+    this.dynamoDB = DynamoDBDocumentClient.from(this.client, {
       marshallOptions: { removeUndefinedValues: true },
     })
   }

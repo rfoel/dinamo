@@ -11,8 +11,10 @@
 First install the library:
 
 ```sh
-npm i dinamo
+npm i dinamo @aws-sdk/client-dynamodb @aws-sdk/lib-dynamodb
 ```
+
+> Note that `@aws-sdk/client-dynamodb` and `@aws-sdk/lib-dynamodb` are peer dependencies for this library, so instead of bundling it with the package you MUST install it separately.
 
 Then create an instance in your code:
 
@@ -31,7 +33,14 @@ const dinamo = new Dinamo({
 })
 ```
 
-And you're ready to go!
+You can also configure the AWS SDK client logger:
+
+```js
+const dinamo = new Dinamo({
+  endpoint: 'http://localhost:8000',
+  logger: console,
+})
+```
 
 ## Usage
 
@@ -154,3 +163,11 @@ Updates an item.
 ```js
 await dinamo.update({ key: { id: 'a' }, item: { foo: 'baz' } })
 ```
+
+## Contributing
+
+Issues and pull requests are welcome.
+
+## License
+
+[MIT](https://github.com/rfoell/dinamo/blob/main/LICENSE)
