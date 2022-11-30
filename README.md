@@ -37,8 +37,8 @@ You can also configure the AWS SDK client logger:
 
 ```js
 const dinamo = new Dinamo({
-  endpoint: 'http://localhost:8000',
   logger: console,
+  tableName: 'my-table',
 })
 ```
 
