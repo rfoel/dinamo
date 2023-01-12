@@ -47,7 +47,7 @@
     "@semantic-release/release-notes-generator": "^10.0.3",
     "@types/node": "^18.11.9",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "esbuild": "^0.15.16",
+    "esbuild": "^0.16.17",
     "eslint": "^8.28.0",
     "rimraf": "^3.0.2",
     "semantic-release": "^19.0.5",
