@@ -1,6 +1,6 @@
 # Dinamo
 
-[Amazon Dynamo (Amazon DynamoDB)](https://aws.amazon.com/dynamodb/) _optionated_ utilities for Node.js.
+[Amazon Dynamo (Amazon DynamoDB)](https://aws.amazon.com/dynamodb/) _opinionated_ utilities for Node.js.
 
 [![NPM version](https://badge.fury.io/js/dinamo.svg)](http://badge.fury.io/js/dinamo)
 
