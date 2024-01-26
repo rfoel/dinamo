@@ -1,60 +1,51 @@
 {
-  "name": "dinamo",
-  "version": "2.0.0",
-  "description": "Amazon DynamoDB utilities for Node.js",
-  "author": "Rafael Franco",
-  "license": "MIT",
-  "exports": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "type": "module",
-  "keywords": [
-    "aws-sdk",
-    "dynamodb",
-    "node",
-    "node.js"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/rfoel/dinamo.git"
-  },
-  "bugs": {
-    "url": "https://github.com/rfoel/dinamo/issues"
-  },
-  "homepage": "https://github.com/rfoel/dinamo#readme",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "esbuild index.ts --bundle --sourcemap --minify --format=esm --outfile=dist/index.js --external:@aws-sdk/*",
-    "prebuild": "rimraf dist",
-    "postbuild": "npm run types",
-    "types": "tsc --project tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint ."
-  },
-  "dependencies": {
-    "camelcase": "^7.0.0"
-  },
-  "devDependencies": {
-    "@aws-sdk/client-dynamodb": "^3.218.0",
-    "@aws-sdk/lib-dynamodb": "^3.218.0",
-    "@aws-sdk/types": "^3.215.0",
-    "@semantic-release/changelog": "^6.0.2",
-    "@semantic-release/commit-analyzer": "^9.0.2",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^8.0.7",
-    "@semantic-release/npm": "^9.0.1",
-    "@semantic-release/release-notes-generator": "^10.0.3",
-    "@types/node": "^18.11.9",
-    "@typescript-eslint/eslint-plugin": "^5.45.0",
-    "esbuild": "^0.15.16",
-    "eslint": "^8.28.0",
-    "rimraf": "^3.0.2",
-    "semantic-release": "^19.0.5",
-    "typescript": "^4.9.3"
-  },
-  "peerDependencies": {
-    "@aws-sdk/client-dynamodb": ">= 3.218.0",
-    "@aws-sdk/lib-dynamodb": ">= 3.218.0"
-  }
+	"name": "dinamo",
+	"version": "2.0.0",
+	"description": "Amazon DynamoDB utilities for Node.js",
+	"author": "Rafael Franco",
+	"license": "MIT",
+	"exports": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"type": "module",
+	"keywords": ["aws-sdk", "dynamodb", "node", "node.js"],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/rfoel/dinamo.git"
+	},
+	"bugs": {
+		"url": "https://github.com/rfoel/dinamo/issues"
+	},
+	"homepage": "https://github.com/rfoel/dinamo#readme",
+	"files": ["dist"],
+	"scripts": {
+		"build": "esbuild index.ts --bundle --sourcemap --minify --format=esm --outfile=dist/index.js --external:@aws-sdk/*",
+		"prebuild": "rimraf dist",
+		"postbuild": "npm run types",
+		"types": "tsc --project tsconfig.build.json",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"camelcase": "^8.0.0"
+	},
+	"devDependencies": {
+		"@aws-sdk/client-dynamodb": "^3.499.0",
+		"@aws-sdk/lib-dynamodb": "^3.499.0",
+		"@aws-sdk/types": "^3.496.0",
+		"@biomejs/biome": "^1.5.3",
+		"@semantic-release/changelog": "^6.0.3",
+		"@semantic-release/commit-analyzer": "^11.1.0",
+		"@semantic-release/git": "^10.0.1",
+		"@semantic-release/github": "^9.2.6",
+		"@semantic-release/npm": "^11.0.2",
+		"@semantic-release/release-notes-generator": "^12.1.0",
+		"@types/node": "^20.11.7",
+		"esbuild": "^0.19.12",
+		"rimraf": "^5.0.5",
+		"semantic-release": "^23.0.0",
+		"typescript": "^5.3.3"
+	},
+	"peerDependencies": {
+		"@aws-sdk/client-dynamodb": ">= 3.499.0",
+		"@aws-sdk/lib-dynamodb": ">= 3.499.0"
+	}
 }
