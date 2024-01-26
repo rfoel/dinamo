@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/rfoel/dinamo/compare/v2.0.0...v2.0.1) (2024-01-26)
+
+
+### Bug Fixes
+
+* simplify lastEvaluatedKey ([9dd920f](https://github.com/rfoel/dinamo/commit/9dd920fba15d991b5c9dc6d9a21ac2524a6cb31e))
+
 # [2.0.0](https://github.com/rfoel/dinamo/compare/v1.0.2...v2.0.0) (2022-11-30)
 
 

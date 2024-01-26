@@ -1,13 +1,18 @@
 {
 	"name": "dinamo",
-	"version": "2.0.0",
+	"version": "2.0.1",
 	"description": "Amazon DynamoDB utilities for Node.js",
 	"author": "Rafael Franco",
 	"license": "MIT",
 	"exports": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"type": "module",
-	"keywords": ["aws-sdk", "dynamodb", "node", "node.js"],
+	"keywords": [
+		"aws-sdk",
+		"dynamodb",
+		"node",
+		"node.js"
+	],
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/rfoel/dinamo.git"
@@ -16,7 +21,9 @@
 		"url": "https://github.com/rfoel/dinamo/issues"
 	},
 	"homepage": "https://github.com/rfoel/dinamo#readme",
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "esbuild index.ts --bundle --sourcemap --minify --format=esm --outfile=dist/index.js --external:@aws-sdk/*",
 		"prebuild": "rimraf dist",
